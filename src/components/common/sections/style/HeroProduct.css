@@ -1,0 +1,13 @@
+.image-gallery .p-galleria-thumbnail-wrapper {
+    margin-top: calc(var(--spacing)* 4);
+}
+
+.image-gallery .p-galleria-item {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+
+.image-gallery .p-galleria-thumbnail-item{
+    margin: calc(var(--spacing)* 1);
+    border-radius: var(--radius-sm)
+}

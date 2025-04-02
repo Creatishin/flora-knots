@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+  --font-sans: 'Poppins', serif;
+}
+
+@layer base {
+  :root {
+    --primary: #254029;
+    --primary-dark: #19301c;
+    --secondary: #ffbc46;
+    --secondary-dark: #e39c20;
+    --gray-light: oklch(0.928 0.006 264.531);
+    --gray-normal: oklch(0.800 0.006 264.531);
+    --gray-medium: oklch(0.446 0.03 256.802);
+    --gray-dark: oklch(0.278 0.033 256.848);
+
+
+    --style-font-family: "Delius Swash Caps", serif;
+    --normal-font-family: "Poppins", serif;
+  }
+}
+
+body {
+  font-family: var(--normal-font-family);
+}
+
+.style-font {
+  font-family: var(--style-font-family);
+}
+
+
+.react-multiple-carousel__arrow{
+  z-index: 1;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
