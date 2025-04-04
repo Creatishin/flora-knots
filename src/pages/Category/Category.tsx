@@ -15,7 +15,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { ChevronDownIcon, FunnelIcon, MinusIcon, PlusIcon } from '@heroicons/react/20/solid';
 import { cn } from '../../utils/cnHelper';
 import Typography from '../../components/common/Typography';
-import { categoryList } from '../../services/Category';
+import categoryList from '../../services/Category';
 import { useParams } from 'react-router-dom';
 import Button from '../../components/common/Button';
 import { productList as productListData } from '../../services/Products';

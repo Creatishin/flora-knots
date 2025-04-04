@@ -1,6 +1,6 @@
 import { CategoryInterface } from '../types/categoryType';
 
-export const categoryList: CategoryInterface[] = [
+const categoryList: CategoryInterface[] = [
   {
     id: '1',
     name: 'Bouquets',
@@ -150,3 +150,5 @@ export const categoryList: CategoryInterface[] = [
     updated_at: '2025-03-01T10:00:00Z'
   }
 ];
+
+export default categoryList;

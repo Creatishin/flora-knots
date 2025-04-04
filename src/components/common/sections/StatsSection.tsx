@@ -1,7 +1,6 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import Typography from '../Typography';
-import { categoryList } from '../../../services/Category';
-import { motion, useInView } from 'framer-motion';
+import categoryList from '../../../services/Category';
 
 const links = categoryList.splice(0, 4).map((category) => ({
   name: category.name,

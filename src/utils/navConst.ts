@@ -1,4 +1,4 @@
-import { categoryList } from '../services/Category';
+import categoryList from '../services/Category';
 import { NavigationConst } from '../types/navTypes';
 
 export const navigationConst: NavigationConst = {

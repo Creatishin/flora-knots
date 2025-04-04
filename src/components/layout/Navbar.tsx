@@ -27,13 +27,11 @@ import Cart from './Cart';
 import { CategorySection } from '../../types/navTypes';
 import { useAppSelector } from '../../store/store';
 import { useNavigate } from 'react-router-dom';
-import { categoryList } from '../../services/Category';
 
 export default function NavBar() {
   const [open, setOpen] = useState(false);
   const [openCart, setOpenCart] = useState(false);
 
-  console.log(categoryList, 'nav');
   const cart = useAppSelector((state) => state.cart);
 
   const [showBanner, setShowBanner] = useState(true);
@@ -41,7 +39,6 @@ export default function NavBar() {
   const navigate = useNavigate();
 
   const renderList = (category: CategorySection) => {
-    console.log(category.sections);
     return category.sections.map((section) => (
       <li key={section.name} className="flow-root">
         <a href={`/${category.slug}/${section.slug}`} className="-m-2 block p-2 text-gray-500">

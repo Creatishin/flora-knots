@@ -6,13 +6,14 @@ import CategorySection from '../../components/common/sections/CategorySection';
 import Testimony from '../../components/common/sections/Testimony';
 import FollowPage from '../../components/common/sections/FollowPage';
 import AnimateSection from '../../components/common/elements/AnimateSection';
-import { categoryList } from '../../services/Category';
+import categoryList from '../../services/Category';
 
 function Home() {
+  console.log(categoryList);
   return (
     <>
       <AnimateSection>
-        <CategorySection categories={[...categoryList]} />
+        <CategorySection categories={categoryList} />
       </AnimateSection>
 
       <AnimateSection>

@@ -1,6 +1,6 @@
 import React from 'react';
 import Typography from '../common/Typography';
-import { categoryList } from '../../services/Category';
+import categoryList from '../../services/Category';
 
 function Footer() {
   const footerContent: { [key: string]: { title: string; link: string }[] } = {

@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom';
 import { ProductInterface } from '../../types/productType';
 import { CategoryInterface } from '../../types/categoryType';
 import { productList } from '../../services/Products';
-import { categoryList } from '../../services/Category';
+import categoryList from '../../services/Category';
 import NotFound from '../AdditionalPages/NotFound';
 import ProductSection from '../../components/common/sections/ProductSection';
 

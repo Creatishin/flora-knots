@@ -4,23 +4,32 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import Button from '../../components/common/Button';
 import CrochetSignIn from '../../assets/Crochet-signin.svg';
+import { ConfirmationResult, RecaptchaVerifier, signInWithPhoneNumber } from 'firebase/auth';
+import { auth } from '../../../firebase';
+import { useVerifyPhoneNumberMutation, VerifyPhoneResponse } from '../../services/auth';
 
 interface SignInType {
   phoneNumber: string;
   firstName: string;
   lastName: string;
+  password: string;
+  confirmPassword: string;
   otp: string;
 }
 
 function Signup() {
   const [showOTP, setShowOTP] = useState<boolean>(false);
-  const [resendDisabled, setResendDisabled] = useState<boolean>(false);
-  const [timer, setTimer] = useState<number>(30);
+  const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
+  const [showCaptcha, setShowCaptcha] = useState<boolean>(true);
+
+  const [verifyUser] = useVerifyPhoneNumberMutation();
 
   const initialValues: SignInType = {
     phoneNumber: '',
     firstName: '',
     lastName: '',
+    password: '',
+    confirmPassword: '',
     otp: ''
   };
 
@@ -30,56 +39,50 @@ function Signup() {
       .required('Phone number is required'),
     firstName: Yup.string().required('First name is required'),
     lastName: Yup.string().required('Last name is required'),
+    password: Yup.string()
+      .required('Password is required')
+      .min(8, 'Password must be at least 8 characters')
+      .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
+      .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
+      .matches(/\d/, 'Password must contain at least one number')
+      .matches(/[@$!%*?&]/, 'Password must contain at least one special character (@$!%*?&)'),
+    confirmPassword: Yup.string()
+      .required('Confirm Password is required')
+      .oneOf([Yup.ref('password')], 'Passwords must match'),
     otp: Yup.string()
-      .matches(/^\d{4}$/, 'OTP must be 4 digits')
+      .matches(/^\d{6}$/, 'OTP must be 6 digits')
       .when('phoneNumber', {
         is: () => showOTP, // OTP required only if showOTP is true
         then: (schema) => schema.required('OTP is required')
       })
   });
 
-  const handlePhoneSubmit = (values: SignInType) => {
-    console.log('Phone Number:', values.phoneNumber);
-    setShowOTP(true);
-    startResendTimer();
+  const handlePhoneSubmit = async (values: SignInType) => {
+    try {
+      await verifyUser('+91' + values.phoneNumber);
+
+      // const recaptcha = new RecaptchaVerifier(auth, 'recaptcha', {});
+      // const confirmation = await signInWithPhoneNumber(auth, '+91' + values.phoneNumber, recaptcha);
+      // setConfirmation(confirmation);
+      // setShowCaptcha(false)
+      // setShowOTP(true);
+    } catch (err) {
+      const error = err as VerifyPhoneResponse;
+      console.error(error.message ?? 'Something went wrong.');
+    }
   };
 
-  const handleOTPSubmit = (values: SignInType, { resetForm }: { resetForm: () => void }) => {
-    console.log('Form Data:', values);
-    setTimeout(() => {
-      alert('Signed in successfully!');
-      resetForm();
-      setShowOTP(false);
-    }, 500);
-  };
-
-  const handleResendOTP = () => {
-    console.log('Resending OTP...');
-    startResendTimer();
-  };
-
-  const startResendTimer = () => {
-    setResendDisabled(true);
-    setTimer(30);
-    const countdown = setInterval(() => {
-      setTimer((prev) => {
-        if (prev === 1) {
-          clearInterval(countdown);
-          setResendDisabled(false);
-          return 30;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+  const handleOTPSubmit = async (values: SignInType) => {
+    try {
+      await confirmation?.confirm(values.otp);
+    } catch (error) {
+      console.error('there is an error', error);
+    }
   };
 
   return (
     <div className="grid items-center mb-16 grid-cols-2 gap-8">
-      <div>
-        <Typography className="mb-16 font-bold text-(--primary)" variant="s-title">
-          FloraKnots
-        </Typography>
-
+      <div className="col-span-2 md:col-span-1">
         <div className="px-4 py-8 m-2 col-span-2 md:col-span-1 rounded-lg shadow-lg flex flex-col gap-2">
           <Typography variant="subTitle" className="text-(--primary) font-medium">
             Sign Up
@@ -92,11 +95,11 @@ function Signup() {
             onSubmit={showOTP ? handleOTPSubmit : handlePhoneSubmit}
           >
             {() => (
-              <Form className="flex flex-col mt-8 gap-8">
+              <Form className="flex flex-col mt-8 gap-4">
                 <div>
                   <label
                     htmlFor="firstName"
-                    className="block text-sm font-semibold text-gray-900 mb-2"
+                    className="block text-sm font-semibold text-gray-900 mb-1"
                   >
                     First Name
                   </label>
@@ -116,7 +119,7 @@ function Signup() {
                 <div>
                   <label
                     htmlFor="lastName"
-                    className="block text-sm font-semibold text-gray-900 mb-2"
+                    className="block text-sm font-semibold text-gray-900 mb-1"
                   >
                     Last Name
                   </label>
@@ -137,7 +140,7 @@ function Signup() {
                 <div>
                   <label
                     htmlFor="phoneNumber"
-                    className="block text-sm font-semibold text-gray-900 mb-2"
+                    className="block text-sm font-semibold text-gray-900 mb-1"
                   >
                     Phone number
                   </label>
@@ -169,10 +172,52 @@ function Signup() {
                   />
                 </div>
 
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-semibold text-gray-900 mb-1"
+                  >
+                    Password
+                  </label>
+                  <Field
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter password"
+                    className="block w-full rounded-md px-3.5 py-2 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-(--primary)"
+                  />
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="confirmPassword"
+                    className="block text-sm font-semibold text-gray-900 mb-1"
+                  >
+                    Confirm Password
+                  </label>
+                  <Field
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="text"
+                    placeholder="Enter confirm password"
+                    className="block w-full rounded-md px-3.5 py-2 text-base text-gray-900 outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:outline-(--primary)"
+                  />
+                  <ErrorMessage
+                    name="confirmPassword"
+                    component="div"
+                    className="text-red-500 text-sm mt-1"
+                  />
+                </div>
+
                 {/* OTP Field (conditionally shown) */}
                 {showOTP && (
                   <div>
-                    <label htmlFor="otp" className="block text-sm font-semibold text-gray-900 mb-2">
+                    <label htmlFor="otp" className="block text-sm font-semibold text-gray-900 mb-1">
                       OTP
                     </label>
                     <Field
@@ -190,19 +235,7 @@ function Signup() {
                   </div>
                 )}
 
-                {/* Resend OTP Button (conditionally shown) */}
-                {showOTP && (
-                  <button
-                    type="button"
-                    onClick={handleResendOTP}
-                    disabled={resendDisabled}
-                    className={`cursor-pointer text-sm font-semibold ${
-                      resendDisabled ? 'text-gray-400 cursor-not-allowed' : 'text-blue-500'
-                    }`}
-                  >
-                    Resend OTP {resendDisabled && `(${timer}s)`}
-                  </button>
-                )}
+                {showCaptcha && <div id="recaptcha" />}
 
                 {/* Submit Button */}
                 <div>
